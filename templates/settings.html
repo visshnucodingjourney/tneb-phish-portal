@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+{% block page_subtitle %}Manage your account and security preferences{% endblock %}
+
+{% block extra_css %}
+<style>
+.settings-card {
+  max-width: 520px;
+}
+.form-label-pg {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted, #8899AA);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 5px;
+}
+.form-control-pg {
+  background: var(--input-bg, #0D1525);
+  border: 0.5px solid var(--border-color, rgba(255,255,255,0.1));
+  border-radius: 7px;
+  color: var(--text-primary, #E8F0FE);
+  font-size: 13px;
+  padding: 9px 12px;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.form-control-pg:focus {
+  outline: none;
+  border-color: #378ADD;
+  background: var(--input-bg, #0D1525);
+  color: var(--text-primary, #E8F0FE);
+}
+.form-control-pg::placeholder { color: var(--text-muted, #8899AA); }
+
+.pw-wrap { position: relative; }
+.pw-toggle {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; color: var(--text-muted, #8899AA);
+  cursor: pointer; font-size: 14px; padding: 0;
+}
+.pw-toggle:hover { color: var(--text-primary, #E8F0FE); }
+
+.divider {
+  border: none;
+  border-top: 0.5px solid var(--border-color, rgba(255,255,255,0.07));
+  margin: 20px 0;
+}
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border-color, rgba(255,255,255,0.06));
+  font-size: 13px;
+}
+.info-row:last-child { border-bottom: none; }
+.info-key   { color: var(--text-muted, #8899AA); }
+.info-value { color: var(--text-primary, #E8F0FE); font-weight: 500; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+
+  <!-- ── Profile Info ── -->
+  <div class="col-lg-5">
+    <div class="card settings-card">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-person-circle me-2"></i>Profile</div>
+      </div>
+      <div class="card-body">
+        <div class="info-row">
+          <span class="info-key">Full name</span>
+          <span class="info-value">{{ current_user.full_name or '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Username</span>
+          <span class="info-value">{{ current_user.username }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Email</span>
+          <span class="info-value">{{ current_user.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Role</span>
+          <span class="info-value">{{ current_user.role | title }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">2FA</span>
+          <span class="info-value">
+            {% if current_user.totp_enabled %}
+              <span style="color:#1D9E75;"><i class="bi bi-shield-check"></i> Enabled</span>
+            {% else %}
+              <span style="color:#8899AA;"><i class="bi bi-shield"></i> Disabled</span>
+            {% endif %}
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Last login</span>
+          <span class="info-value">
+            {% if current_user.last_login %}{{ current_user.last_login | to_ist }}{% else %}—{% endif %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Change Password ── -->
+  <div class="col-lg-5">
+    <div class="card settings-card">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-lock-fill me-2"></i>Change Password</div>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('main.change_password') }}" id="pwForm">
+          <div class="mb-3">
+            <label class="form-label-pg">Current password</label>
+            <div class="pw-wrap">
+              <input type="password" name="current_password" id="cur_pw"
+                     class="form-control-pg" placeholder="Enter current password" required>
+              <button type="button" class="pw-toggle" onclick="togglePw('cur_pw', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <hr class="divider">
+
+          <div class="mb-3">
+            <label class="form-label-pg">New password</label>
+            <div class="pw-wrap">
+              <input type="password" name="new_password" id="new_pw"
+                     class="form-control-pg" placeholder="Min 8 characters" required minlength="8">
+              <button type="button" class="pw-toggle" onclick="togglePw('new_pw', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label-pg">Confirm new password</label>
+            <div class="pw-wrap">
+              <input type="password" name="confirm_password" id="conf_pw"
+                     class="form-control-pg" placeholder="Repeat new password" required>
+              <button type="button" class="pw-toggle" onclick="togglePw('conf_pw', this)">
+                <i class="bi bi-eye"></i>
+              </button>
+            </div>
+            <div id="pw-match-msg" style="font-size:11px;margin-top:5px;"></div>
+          </div>
+
+          <button type="submit" class="btn-pg btn-pg-primary w-100" id="submitBtn">
+            <i class="bi bi-check-circle"></i> Update Password
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function togglePw(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const icon = btn.querySelector('i');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.className = 'bi bi-eye-slash';
+  } else {
+    inp.type = 'password';
+    icon.className = 'bi bi-eye';
+  }
+}
+
+/* Live match check */
+const newPw  = document.getElementById('new_pw');
+const confPw = document.getElementById('conf_pw');
+const msg    = document.getElementById('pw-match-msg');
+const btn    = document.getElementById('submitBtn');
+
+function checkMatch() {
+  if (!confPw.value) { msg.textContent = ''; return; }
+  if (newPw.value === confPw.value) {
+    msg.textContent = '✓ Passwords match';
+    msg.style.color = '#1D9E75';
+    btn.disabled = false;
+  } else {
+    msg.textContent = '✗ Passwords do not match';
+    msg.style.color = '#E24B4A';
+    btn.disabled = true;
+  }
+}
+newPw.addEventListener('input', checkMatch);
+confPw.addEventListener('input', checkMatch);
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Email Template{% endblock %}
+{% block page_title %}Email Templates{% endblock %}
+{% block page_subtitle %}Edit "{{ template.name }}"{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Edit Template</div>
+  </div>
+
+  <div class="card-body">
+
+    <form method="POST" enctype="multipart/form-data" autocomplete="off">
+
+      <div class="mb-3">
+        <label>Template Name</label>
+        <input type="text" class="form-control" name="name" value="{{ template.name }}" required autofocus>
+      </div>
+
+      <div class="mb-3">
+        <label>Subject Line</label>
+        <input type="text" class="form-control" name="subject" value="{{ template.subject }}" required>
+      </div>
+
+      <div class="mb-3">
+        <label>Email Body (HTML)</label>
+        <textarea class="form-control" name="body" rows="10" required>{{ template.body_html }}</textarea>
+        <small style="color:var(--text-muted);">
+          Insert <code>{{ '{{CLICK_LINK}}' }}</code> anywhere in the HTML to control where the tracked link appears.
+        </small>
+      </div>
+
+      <div class="mb-3">
+        <label>Category</label>
+        <input type="text" class="form-control" name="category" value="{{ template.category or '' }}">
+      </div>
+
+      <div class="mb-3">
+        <label>Difficulty (1–5)</label>
+        <input type="number" class="form-control" name="difficulty" min="1" max="5" value="{{ template.difficulty }}">
+      </div>
+
+      <div class="mb-3">
+        <label>Attachment</label>
+
+        {% if template.attachment_filename %}
+        <div class="mb-2" style="color:var(--text-secondary);font-size:13px;">
+          <i class="bi bi-paperclip"></i> Current: {{ template.attachment_original_name }}
+          <label class="ms-2" style="color:var(--text-muted);">
+            <input type="checkbox" name="remove_attachment"> Remove it
+          </label>
+        </div>
+        {% endif %}
+
+        <input type="file" class="form-control" name="attachment" accept=".pdf,.png,.jpg,.jpeg,.gif">
+        <small style="color:var(--text-muted);">Upload a new file to replace the current attachment. Max 16MB.</small>
+      </div>
+
+      <button type="submit" class="btn-pg btn-pg-primary">
+        <i class="bi bi-check-lg"></i> Save Changes
+      </button>
+      <a href="{{ url_for('main.email_templates') }}" class="btn-pg" style="background:var(--bg-hover);color:var(--text-secondary);">
+        Cancel
+      </a>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

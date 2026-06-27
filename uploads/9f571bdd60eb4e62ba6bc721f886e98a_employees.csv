@@ -1,0 +1,26 @@
+employee_id,employee_name,email,department,designation,office_location
+EMP001,Aarav Kumar,aarav.kumar@company.com,Information Technology,Software Engineer,Chennai HQ
+EMP002,Diya Sharma,diya.sharma@company.com,Human Resources,HR Executive,Chennai HQ
+EMP003,Vikram Singh,vikram.singh@company.com,Finance,Financial Analyst,Bangalore Office
+EMP004,Priya Nair,priya.nair@company.com,Marketing,Marketing Executive,Hyderabad Office
+EMP005,Karthik Raj,karthik.raj@company.com,Information Technology,Senior Engineer,Chennai HQ
+EMP006,Ananya Patel,ananya.patel@company.com,Sales,Sales Executive,Mumbai Office
+EMP007,Rohan Gupta,rohan.gupta@company.com,Information Technology,System Administrator,Chennai HQ
+EMP008,Sneha Reddy,sneha.reddy@company.com,Marketing,Content Strategist,Hyderabad Office
+EMP009,Arjun Das,arjun.das@company.com,Finance,Accountant,Bangalore Office
+EMP010,Meera Iyer,meera.iyer@company.com,Human Resources,HR Manager,Chennai HQ
+EMP011,Harish Kumar,harish.kumar@company.com,Sales,Regional Manager,Mumbai Office
+EMP012,Nisha Verma,nisha.verma@company.com,Information Technology,Frontend Developer,Chennai HQ
+EMP013,Sanjay Rao,sanjay.rao@company.com,Information Technology,Backend Developer,Bangalore Office
+EMP014,Kavya Menon,kavya.menon@company.com,Marketing,SEO Specialist,Hyderabad Office
+EMP015,Rahul Jain,rahul.jain@company.com,Finance,Auditor,Bangalore Office
+EMP016,Divya Krishnan,divya.krishnan@company.com,Human Resources,Talent Acquisition Specialist,Chennai HQ
+EMP017,Surya Prakash,surya.prakash@company.com,Information Technology,DevOps Engineer,Chennai HQ
+EMP018,Keerthana S,keerthana.s@company.com,Sales,Sales Manager,Mumbai Office
+EMP019,Manoj B,manoj.b@company.com,Information Technology,Data Analyst,Bangalore Office
+EMP020,Aishwarya R,aishwarya.r@company.com,Marketing,Brand Manager,Hyderabad Office
+EMP021,Praveen K,praveen.k@company.com,Finance,Finance Manager,Bangalore Office
+EMP022,Reshma P,reshma.p@company.com,Human Resources,HR Coordinator,Chennai HQ
+EMP023,Ajay M,ajay.m@company.com,Information Technology,QA Engineer,Chennai HQ
+EMP024,Lakshmi V,lakshmi.v@company.com,Sales,Business Development Executive,Mumbai Office
+EMP025,Gokul N,gokul.n@company.com,Information Technology,Project Manager,Chennai HQ

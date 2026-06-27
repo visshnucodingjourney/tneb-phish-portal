@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    document.documentElement.setAttribute('data-theme',
+      localStorage.getItem('phishguard-theme') ||
+      (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
+  </script>
+  <title>Login — TNEB Phish Awareness Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/phishguard.css') }}" rel="stylesheet">
+</head>
+<body>
+<div class="login-wrap">
+
+  <button class="theme-toggle" type="button" aria-label="Toggle theme" style="position:absolute;top:20px;right:24px;z-index:2;">
+    <i class="bi bi-sun"></i>
+  </button>
+
+  <!-- Animated grid background dots -->
+  <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.04;" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <circle cx="20" cy="20" r="1" fill="#00B4D8"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#grid)"/>
+  </svg>
+
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🛡️</div>
+      <div class="login-title">TNEB</div>
+      <div class="login-sub">Phish Awareness Portal</div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} mb-3">
+            <i class="bi bi-exclamation-circle-fill me-2"></i>{{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label">Username</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          <input type="text" name="username" class="form-control" placeholder="Enter username" required autofocus>
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+          <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required>
+          <button type="button" class="input-group-text" id="toggle-pw" title="Show password">
+            <i class="bi bi-eye-fill" id="eye-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="form-check" style="margin:0;">
+          <input class="form-check-input" type="checkbox" name="remember" id="remember"
+                 style="background:var(--bg-hover);border-color:var(--border);">
+          <label class="form-check-label" for="remember" style="font-size:12.5px;color:var(--text-secondary);">
+            Keep me signed in
+          </label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-pg btn-pg-primary w-100 justify-content-center" style="padding:10px;font-size:14px;">
+        <i class="bi bi-shield-lock-fill"></i> Sign In Securely
+      </button>
+    </form>
+
+    <div class="mt-4 p-3 rounded" style="background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.12);">
+      <div style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.8;">
+        <i class="bi bi-info-circle me-1"></i>
+        Default credentials: <span style="font-family:var(--font-mono);color:var(--text-secondary);">admin / Admin@123</span>
+        <br>Change password after first login.
+      </div>
+    </div>
+
+    <div class="text-center mt-4" style="font-size:11px;color:var(--text-muted);">
+      TNEB Phish Awareness Portal v1.0 · Phase 1 Foundation · 
+      <span style="color:var(--accent);">Authorized access only</span>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/phishguard.js') }}"></script>
+<script>
+  document.getElementById('toggle-pw').addEventListener('click', function() {
+    const pw = document.getElementById('password');
+    const icon = document.getElementById('eye-icon');
+    if (pw.type === 'password') {
+      pw.type = 'text';
+      icon.className = 'bi bi-eye-slash-fill';
+    } else {
+      pw.type = 'password';
+      icon.className = 'bi bi-eye-fill';
+    }
+  });
+</script>
+</body>
+</html>

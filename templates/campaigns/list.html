@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Campaigns{% endblock %}
+{% block page_title %}Campaigns{% endblock %}
+{% block page_subtitle %}Manage awareness campaigns{% endblock %}
+
+{% block content %}
+
+<div class="mb-3">
+  <a href="{{ url_for('main.add_campaign') }}"
+     class="btn-pg btn-pg-primary">
+     Create Campaign
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th style="width:1%;"></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for campaign in campaigns %}
+      <tr onclick="window.location='{{ url_for('main.campaign_detail', campaign_id=campaign.id) }}'"
+          style="cursor:pointer;">
+        <td>{{ campaign.name }}</td>
+        <td>{{ campaign.target_department }}</td>
+        <td>{{ campaign.status }}</td>
+        <td onclick="event.stopPropagation();">
+          <form method="POST"
+                action="{{ url_for('main.delete_campaign', campaign_id=campaign.id) }}"
+                style="margin:0;">
+            <button type="submit"
+                    class="btn-pg btn-pg-danger"
+                    style="padding:5px 10px;"
+                    data-confirm="Delete campaign &quot;{{ campaign.name }}&quot;? This cannot be undone.">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

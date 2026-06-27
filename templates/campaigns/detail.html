@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+{% block title %}Campaign: {{ campaign.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <div>
+    <h4 style="color:var(--text-primary);margin:0;">{{ campaign.name }}</h4>
+    <span style="font-size:12px;color:var(--text-muted);">Campaign Analytics & Tracking</span>
+  </div>
+  <div class="d-flex gap-2">
+    {% if campaign.status == 'draft' %}
+    <form method="POST" action="{{ url_for('main.launch_campaign', campaign_id=campaign.id) }}">
+      <button type="submit" class="btn-pg btn-pg-primary" onclick="return confirm('Launch this campaign and generate phishing links for all targets?')">
+        <i class="bi bi-send-fill"></i> Launch Campaign
+      </button>
+    </form>
+
+    {% elif campaign.status == 'scheduled' %}
+    <span class="badge" style="background:rgba(255,193,7,0.15);color:#ffc107;padding:8px 14px;border-radius:8px;font-size:12px;">
+      <i class="bi bi-calendar-event-fill me-1"></i>Scheduled for {{ campaign.scheduled_at | to_ist }} IST
+    </span>
+
+    {% elif campaign.status == 'sending' %}
+    <span class="badge" id="sending-badge" style="background:rgba(0,180,216,0.15);color:#00B4D8;padding:8px 14px;border-radius:8px;font-size:12px;">
+      <i class="bi bi-arrow-repeat me-1"></i>Sending… <span id="sending-progress"></span>
+    </span>
+
+    {% elif campaign.status == 'sent' %}
+    <span class="badge" style="background:rgba(35,197,94,0.15);color:#23c55e;padding:8px 14px;border-radius:8px;font-size:12px;">
+      <i class="bi bi-check-circle-fill me-1"></i>Sent {{ campaign.sent_at | to_ist }} IST
+    </span>
+
+    {% else %}
+    <span class="badge" style="background:rgba(35,197,94,0.15);color:#23c55e;padding:8px 14px;border-radius:8px;font-size:12px;">
+      <i class="bi bi-circle-fill me-1" style="font-size:8px;"></i>Active
+    </span>
+    {% endif %}
+
+    <a href="{{ url_for('main.campaigns') }}" class="btn-pg" style="background:var(--bg-hover);color:var(--text-secondary);">
+      <i class="bi bi-arrow-left"></i> Back
+    </a>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(0,180,216,0.1);color:#00B4D8;">
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <div class="stat-value">{{ total }}</div>
+      <div class="stat-label">Total Targets</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(255,193,7,0.1);color:#ffc107;">
+        <i class="bi bi-cursor-fill"></i>
+      </div>
+      <div class="stat-value">{{ clicked }}</div>
+      <div class="stat-label">Clicked Link</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(248,81,73,0.1);color:#f85149;">
+        <i class="bi bi-person-fill-exclamation"></i>
+      </div>
+      <div class="stat-value">{{ submitted }}</div>
+      <div class="stat-label">Submitted Credentials</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(35,197,94,0.1);color:#23c55e;">
+        <i class="bi bi-shield-check-fill"></i>
+      </div>
+      <div class="stat-value">{{ safe }}</div>
+      <div class="stat-label">Stayed Safe</div>
+    </div>
+  </div>
+</div>
+
+<!-- Click Rate Bar -->
+{% if total > 0 %}
+<div class="pg-card mb-4">
+  <div class="pg-card-header">
+    <span class="pg-card-title"><i class="bi bi-bar-chart-fill me-2"></i>Campaign Results</span>
+  </div>
+  <div class="pg-card-body">
+    <div class="mb-3">
+      <div class="d-flex justify-content-between mb-1" style="font-size:12px;color:var(--text-muted);">
+        <span>Click Rate</span>
+        <span>{{ "%.0f"|format(clicked/total*100) }}%</span>
+      </div>
+      <div style="background:var(--bg-hover);border-radius:6px;height:8px;">
+        <div style="background:#ffc107;width:{{ (clicked/total*100)|round }}%;height:8px;border-radius:6px;transition:width 0.5s;"></div>
+      </div>
+    </div>
+    <div class="mb-3">
+      <div class="d-flex justify-content-between mb-1" style="font-size:12px;color:var(--text-muted);">
+        <span>Submission Rate</span>
+        <span>{{ "%.0f"|format(submitted/total*100) }}%</span>
+      </div>
+      <div style="background:var(--bg-hover);border-radius:6px;height:8px;">
+        <div style="background:#f85149;width:{{ (submitted/total*100)|round }}%;height:8px;border-radius:6px;transition:width 0.5s;"></div>
+      </div>
+    </div>
+    <div>
+      <div class="d-flex justify-content-between mb-1" style="font-size:12px;color:var(--text-muted);">
+        <span>Safe (Did Not Click)</span>
+        <span>{{ "%.0f"|format(safe/total*100) }}%</span>
+      </div>
+      <div style="background:var(--bg-hover);border-radius:6px;height:8px;">
+        <div style="background:#23c55e;width:{{ (safe/total*100)|round }}%;height:8px;border-radius:6px;transition:width 0.5s;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Employee Table -->
+<div class="pg-card">
+  <div class="pg-card-header">
+    <span class="pg-card-title"><i class="bi bi-table me-2"></i>Employee Tracking ({{ total }})</span>
+  </div>
+  <div class="table-responsive">
+    <table class="pg-table">
+      <thead>
+        <tr>
+          <th>Employee</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th>Link Clicked</th>
+          <th>Submitted</th>
+          <th>Phishing Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>
+            <div style="font-weight:500;color:var(--text-primary);">{{ row.employee.employee_name if row.employee else '—' }}</div>
+            <div style="font-size:11px;color:var(--text-muted);">{{ row.employee.employee_id if row.employee else '' }}</div>
+          </td>
+          <td style="color:var(--text-secondary);font-size:13px;">{{ row.employee.email if row.employee else '—' }}</td>
+          <td style="color:var(--text-secondary);font-size:13px;">{{ row.employee.department if row.employee else '—' }}</td>
+          <td>
+            {% if row.status == 'submitted' %}
+              <span class="badge" style="background:rgba(248,81,73,0.15);color:#f85149;padding:4px 10px;border-radius:6px;font-size:11px;">
+                <i class="bi bi-exclamation-circle-fill me-1"></i>Submitted
+              </span>
+            {% elif row.status == 'clicked' %}
+              <span class="badge" style="background:rgba(255,193,7,0.15);color:#ffc107;padding:4px 10px;border-radius:6px;font-size:11px;">
+                <i class="bi bi-cursor-fill me-1"></i>Clicked
+              </span>
+            {% elif row.status == 'opened' %}
+              <span class="badge" style="background:rgba(0,180,216,0.15);color:#00B4D8;padding:4px 10px;border-radius:6px;font-size:11px;">
+                <i class="bi bi-envelope-open-fill me-1"></i>Opened
+              </span>
+            {% elif row.status == 'sent' %}
+              <span class="badge" style="background:rgba(139,148,158,0.15);color:#8b949e;padding:4px 10px;border-radius:6px;font-size:11px;">
+                <i class="bi bi-envelope-fill me-1"></i>Sent
+              </span>
+            {% else %}
+              <span class="badge" style="background:rgba(139,148,158,0.1);color:#6e7681;padding:4px 10px;border-radius:6px;font-size:11px;">
+                Pending
+              </span>
+            {% endif %}
+          </td>
+          <td style="font-size:12px;color:var(--text-muted);">
+            {{ row.target.link_clicked_at.strftime('%d %b %Y %H:%M') if row.target.link_clicked_at else '—' }}
+          </td>
+          <td style="font-size:12px;color:var(--text-muted);">
+            {{ row.target.credentials_submitted_at.strftime('%d %b %Y %H:%M') if row.target.credentials_submitted_at else '—' }}
+          </td>
+          <td>
+            <button class="btn-pg" style="font-size:11px;padding:4px 10px;background:var(--bg-hover);color:var(--text-muted);"
+                    onclick="copyLink('{{ row.phishing_link }}')" title="Copy phishing link">
+              <i class="bi bi-copy"></i> Copy Link
+            </button>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="7" class="text-center" style="color:var(--text-muted);padding:2rem;">
+            No targets yet. Launch the campaign to generate phishing links.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+function copyLink(link) {
+  navigator.clipboard.writeText(link).then(() => {
+    event.target.closest('button').innerHTML = '<i class="bi bi-check2"></i> Copied!';
+    setTimeout(() => {
+      event.target.closest('button').innerHTML = '<i class="bi bi-copy"></i> Copy Link';
+    }, 1500);
+  });
+}
+
+// If the campaign is currently sending, poll for live progress and
+// auto-refresh the page once it's done so the badge flips to "Sent".
+{% if campaign.status == 'sending' %}
+(function poll() {
+  fetch("{{ url_for('main.campaign_send_status', campaign_id=campaign.id) }}")
+    .then(r => r.json())
+    .then(data => {
+      const el = document.getElementById('sending-progress');
+      if (el) el.textContent = `(${data.sent}/${data.total})`;
+      if (data.done) {
+        location.reload();
+      } else {
+        setTimeout(poll, 3000);
+      }
+    })
+    .catch(() => setTimeout(poll, 5000));
+})();
+{% endif %}
+</script>
+{% endblock %}

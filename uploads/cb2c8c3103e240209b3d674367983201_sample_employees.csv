@@ -1,0 +1,11 @@
+employee_id,employee_name,email,department,designation,office_location
+EMP001,Arjun Sharma,arjun.sharma@company.com,Information Technology,Senior Software Engineer,Chennai HQ
+EMP002,Priya Nair,priya.nair@company.com,Human Resources,HR Manager,Mumbai Office
+EMP003,Rahul Mehta,rahul.mehta@company.com,Finance & Accounts,Financial Analyst,Delhi Office
+EMP004,Divya Krishnan,divya.krishnan@company.com,Operations,Operations Lead,Bangalore HQ
+EMP005,Karthik Rajan,karthik.rajan@company.com,Sales & Marketing,Sales Executive,Chennai HQ
+EMP006,Sneha Pillai,sneha.pillai@company.com,Information Technology,DevOps Engineer,Chennai HQ
+EMP007,Vikram Patel,vikram.patel@company.com,Finance & Accounts,Senior Accountant,Mumbai Office
+EMP008,Ananya Iyer,ananya.iyer@company.com,Human Resources,HR Executive,Bangalore HQ
+EMP009,Suresh Kumar,suresh.kumar@company.com,Operations,Logistics Coordinator,Delhi Office
+EMP010,Meena Reddy,meena.reddy@company.com,Sales & Marketing,Marketing Manager,Chennai HQ

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Create Campaign{% endblock %}
+{% block page_title %}Campaigns{% endblock %}
+{% block page_subtitle %}Create a new phishing awareness campaign{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-end mb-2">
+  <a href="{{ url_for('main.campaign_calendar') }}" class="btn-pg" style="background:var(--bg-hover);color:var(--text-secondary);">
+    <i class="bi bi-calendar3"></i> View Calendar
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Create Campaign</div>
+  </div>
+
+  <div class="card-body">
+
+    <form method="POST" autocomplete="off">
+
+      <div class="mb-3">
+        <label>Campaign Name</label>
+        <input type="text"
+               class="form-control"
+               name="name"
+               autocomplete="off"
+               required>
+      </div>
+
+      <div class="mb-3">
+        <label>Template</label>
+        <select class="form-control"
+                name="template_id">
+
+          {% for template in templates %}
+          <option value="{{ template.id }}">
+            {{ template.name }}
+          </option>
+          {% endfor %}
+
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label>Target Department</label>
+
+        <select class="form-control"
+                name="target_department">
+
+          {% for dept in departments %}
+          <option value="{{ dept.name }}">
+            {{ dept.name }}
+          </option>
+          {% endfor %}
+
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label>Schedule Send (optional)</label>
+        <input type="datetime-local"
+               class="form-control"
+               name="scheduled_at">
+        <small style="color:var(--text-muted);">Leave blank to keep as a draft you launch manually. Times are IST.</small>
+      </div>
+
+      <button type="submit"
+              class="btn-pg btn-pg-primary">
+        Create Campaign
+      </button>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

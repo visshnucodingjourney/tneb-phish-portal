@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Security risk overview and platform metrics{% endblock %}
+
+{% block content %}
+
+<!-- ── Stat Cards ── -->
+<div class="row g-3 mb-4">
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-people stat-icon"></i>
+      <div class="stat-value" style="color:#378ADD;">{{ total_employees }}</div>
+      <div class="stat-label">Employees</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-building stat-icon"></i>
+      <div class="stat-value" style="color:#1D9E75;">{{ total_departments }}</div>
+      <div class="stat-label">Departments</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-cloud-upload stat-icon"></i>
+      <div class="stat-value" style="color:#BA7517;">{{ total_uploads }}</div>
+      <div class="stat-label">CSV Imports</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-envelope stat-icon"></i>
+      <div class="stat-value" style="color:#4CC9F0;">{{ total_campaigns }}</div>
+      <div class="stat-label">Campaigns</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-bullseye stat-icon"></i>
+      <div class="stat-value" style="color:#E24B4A;">{{ active_campaigns }}</div>
+      <div class="stat-label">Active Now</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <a href="{{ url_for('main.reports') }}" style="text-decoration:none;">
+      <div class="stat-card stat-card-link">
+        <i class="bi bi-bar-chart stat-icon"></i>
+        <div class="stat-value" style="color:#7F77DD;"><i class="bi bi-arrow-right"></i></div>
+        <div class="stat-label">Reports</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ── Activity ── -->
+<div class="row g-3 mb-3">
+  <div class="col-lg-12">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title">Recent activity</div>
+        <a href="{{ url_for('main.activity_logs') }}" class="btn-simple">View all</a>
+      </div>
+      <div class="card-body" style="padding:8px 16px;">
+        {% for log in recent_logs %}
+        <div class="log-item">
+          <div class="log-icon
+            {% if log.action=='LOGIN' %}log-icon-blue
+            {% elif 'ADDED' in log.action %}log-icon-teal
+            {% elif 'DELETED' in log.action %}log-icon-red
+            {% elif 'CAMPAIGN' in log.action %}log-icon-sky
+            {% else %}log-icon-muted{% endif %}">
+            <i class="bi bi-{% if log.action=='LOGIN' %}shield-check{% elif 'ADDED' in log.action %}plus-circle{% elif 'DELETED' in log.action %}trash{% elif 'CAMPAIGN' in log.action %}envelope{% elif log.action=='CSV_UPLOAD' %}cloud-upload{% else %}activity{% endif %}"></i>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div class="log-action">{{ log.action|replace('_',' ')|title }}</div>
+            <div class="log-desc">{{ (log.description or '')|truncate(55) }}</div>
+          </div>
+          <div class="log-time">{{ log.created_at.strftime('%d %b %H:%M') if log.created_at else '—' }}</div>
+        </div>
+        {% else %}
+        <div class="empty-state" style="padding:32px;">
+          <i class="bi bi-clock-history d-block mb-2" style="font-size:28px;opacity:0.2;"></i>
+          <div style="font-size:13px;color:var(--text-muted);">No activity yet.</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Quick Actions + Departments + Recent Campaigns ── -->
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header">
+        <div class="card-title">Quick actions</div>
+      </div>
+      <div class="card-body">
+        <div class="quick-actions-grid">
+          <a href="{{ url_for('main.add_campaign') }}" class="qa-btn">
+            <i class="bi bi-plus-circle" style="color:#378ADD;"></i>
+            New campaign
+          </a>
+          <a href="{{ url_for('main.upload_employees') }}" class="qa-btn">
+            <i class="bi bi-cloud-upload" style="color:#1D9E75;"></i>
+            CSV import
+          </a>
+          <a href="{{ url_for('main.add_employee') }}" class="qa-btn">
+            <i class="bi bi-person-plus" style="color:#BA7517;"></i>
+            Add employee
+          </a>
+          <a href="{{ url_for('main.email_templates') }}" class="qa-btn">
+            <i class="bi bi-file-earmark-plus" style="color:#7F77DD;"></i>
+            New template
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Departments</div>
+      </div>
+      <div class="card-body" style="padding:8px 16px;">
+        {% for dept in top_departments %}
+        <div class="dept-row">
+          <span class="dept-name">{{ dept.name }}</span>
+          <div class="dept-bar-bg">
+            <div class="dept-bar" style="width:{{ [dept.employee_count*5,100]|min }}%;"></div>
+          </div>
+          <span class="dept-count">{{ dept.employee_count }}</span>
+        </div>
+        {% else %}
+        <div style="font-size:13px;color:var(--text-muted);">No departments.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Recent campaigns</div>
+        <a href="{{ url_for('main.campaigns') }}" class="btn-simple">All campaigns</a>
+      </div>
+      {% if recent_campaigns %}
+      <div class="card-body" style="padding:0;">
+        <table class="simple-table">
+          <thead>
+            <tr>
+              <th>Campaign</th>
+              <th>Status</th>
+              <th>Targets</th>
+              <th>Open %</th>
+              <th>Click %</th>
+              <th>Submit %</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in recent_campaigns %}
+            <tr>
+              <td class="campaign-name">{{ c.name|truncate(30) }}</td>
+              <td>
+                <span class="status-badge
+                  {% if c.status=='running' %}status-running
+                  {% elif c.status=='completed' %}status-done
+                  {% elif c.status=='scheduled' %}status-scheduled
+                  {% else %}status-draft{% endif %}">
+                  {{ c.status|title }}
+                </span>
+              </td>
+              <td>{{ c.total_targets }}</td>
+              <td class="{% if c.open_rate > 50 %}val-warn{% endif %}">{{ c.open_rate }}%</td>
+              <td class="{% if c.click_rate > 20 %}val-danger{% endif %}">{{ c.click_rate }}%</td>
+              <td class="{% if c.submit_rate > 10 %}val-danger{% endif %}">{{ c.submit_rate }}%</td>
+              <td><a href="{{ url_for('main.campaign_detail', campaign_id=c.id) }}" class="btn-simple">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="card-body">
+        <div class="empty-state" style="padding:40px;">
+          <i class="bi bi-envelope-paper d-block mb-2" style="font-size:32px;opacity:0.2;"></i>
+          <div style="font-size:13px;color:var(--text-muted);">No campaigns yet.</div>
+          <a href="{{ url_for('main.add_campaign') }}" class="btn-pg btn-pg-primary mt-3">
+            <i class="bi bi-plus-circle"></i> Create first campaign
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── Stat cards ── */
+.stat-card {
+  background: var(--card-bg, #111827);
+  border: 0.5px solid var(--border-color, rgba(255,255,255,0.07));
+  border-radius: 10px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: background 0.15s;
+}
+.stat-card-link:hover {
+  background: var(--card-hover-bg, #1a2236);
+}
+.stat-icon {
+  font-size: 15px;
+  color: var(--text-muted, #8899AA);
+  margin-bottom: 2px;
+}
+.stat-value {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted, #8899AA);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Card header ── */
+.card-subtitle {
+  font-size: 11px;
+  color: var(--text-muted, #8899AA);
+  margin-top: 1px;
+}
+.badge-simple {
+  font-size: 11px;
+  color: var(--text-muted, #8899AA);
+  background: var(--badge-bg, rgba(136,153,170,0.12));
+  border-radius: 4px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.btn-simple {
+  font-size: 11px;
+  padding: 3px 10px;
+  border: 0.5px solid var(--border-color, rgba(255,255,255,0.12));
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted, #8899AA);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.btn-simple:hover {
+  background: var(--card-hover-bg, rgba(255,255,255,0.05));
+  color: var(--text-primary, #E8F0FE);
+}
+
+/* ── Activity log ── */
+.log-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 0.5px solid var(--border-color, rgba(255,255,255,0.06));
+}
+.log-item:last-child { border-bottom: none; }
+.log-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 13px;
+}
+.log-icon-blue     { background: rgba(0,180,216,0.12);   color: #00B4D8; }
+.log-icon-teal     { background: rgba(29,158,117,0.12);  color: #1D9E75; }
+.log-icon-red      { background: rgba(226,75,74,0.12);   color: #E24B4A; }
+.log-icon-sky      { background: rgba(76,201,240,0.12);  color: #4CC9F0; }
+.log-icon-muted    { background: rgba(136,153,170,0.12); color: #8899AA; }
+.log-action {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary, #E8F0FE);
+}
+.log-desc {
+  font-size: 11px;
+  color: var(--text-muted, #8899AA);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.log-time {
+  font-size: 11px;
+  color: var(--text-muted, #8899AA);
+  white-space: nowrap;
+  padding-top: 1px;
+}
+
+/* ── Quick actions ── */
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.qa-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px;
+  border: 0.5px solid var(--border-color, rgba(255,255,255,0.07));
+  border-radius: 8px;
+  background: transparent;
+  text-decoration: none;
+  font-size: 12px;
+  color: var(--text-primary, #E8F0FE);
+  transition: background 0.15s;
+}
+.qa-btn i { font-size: 15px; }
+.qa-btn:hover { background: var(--card-hover-bg, rgba(255,255,255,0.05)); color: var(--text-primary, #E8F0FE); }
+
+/* ── Departments ── */
+.dept-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 0.5px solid var(--border-color, rgba(255,255,255,0.06));
+}
+.dept-row:last-child { border-bottom: none; }
+.dept-name { font-size: 12px; flex: 1; color: var(--text-primary, #E8F0FE); }
+.dept-bar-bg { width: 60px; height: 4px; background: var(--badge-bg, rgba(136,153,170,0.15)); border-radius: 2px; overflow: hidden; }
+.dept-bar { height: 4px; background: #378ADD; border-radius: 2px; }
+.dept-count { font-size: 12px; font-weight: 500; color: #378ADD; min-width: 18px; text-align: right; }
+
+/* ── Campaigns table ── */
+.simple-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.simple-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted, #8899AA);
+  padding: 8px 12px;
+  border-bottom: 0.5px solid var(--border-color, rgba(255,255,255,0.07));
+}
+.simple-table td {
+  padding: 8px 12px;
+  border-bottom: 0.5px solid var(--border-color, rgba(255,255,255,0.05));
+  color: var(--text-primary, #E8F0FE);
+}
+.simple-table tr:last-child td { border-bottom: none; }
+.campaign-name { font-weight: 500; }
+.val-warn   { color: #BA7517 !important; }
+.val-danger { color: #E24B4A !important; }
+
+.status-badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.status-running   { background: rgba(29,158,117,0.12);  color: #1D9E75; }
+.status-done      { background: rgba(136,153,170,0.12); color: #8899AA; }
+.status-scheduled { background: rgba(186,117,23,0.12);  color: #BA7517; }
+.status-draft     { background: rgba(136,153,170,0.1);  color: #8899AA; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

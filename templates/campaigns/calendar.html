@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Campaign Calendar{% endblock %}
+{% block page_title %}Campaign Calendar{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<style>
+  .cal-legend-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .cal-card {
+    border-radius: 14px;
+    overflow: hidden;
+    padding: 24px;
+    background: #ffffff;
+  }
+  /* FullCalendar overrides — keep all text dark inside white card */
+  #calendar { min-height: 660px; }
+  .fc-toolbar-title {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+  }
+  .fc .fc-button {
+    background: #6366f1 !important;
+    border: none !important;
+    border-radius: 7px !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    padding: 5px 12px !important;
+    box-shadow: none !important;
+  }
+  .fc .fc-button:hover { background: #4f46e5 !important; }
+  .fc .fc-button-primary:not(:disabled).fc-button-active,
+  .fc .fc-button-primary:not(:disabled):active { background: #4338ca !important; }
+  .fc .fc-today-button { background: #0ea5e9 !important; }
+  .fc .fc-today-button:disabled { background: #94a3b8 !important; opacity: 1 !important; }
+  .fc-col-header-cell-cushion {
+    color: #475569 !important;
+    font-weight: 700 !important;
+    font-size: 0.78rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-decoration: none !important;
+  }
+  .fc-daygrid-day-number {
+    color: #334155 !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+  }
+  .fc-day-today { background: #eff6ff !important; }
+  .fc-day-today .fc-daygrid-day-number { color: #2563eb !important; font-weight: 700 !important; }
+  .fc-daygrid-day:hover { background: #f8fafc !important; }
+  .fc-event {
+    cursor: pointer !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    padding: 2px 7px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12) !important;
+  }
+  .fc-event:hover { filter: brightness(0.92); }
+  .fc-daygrid-event-dot { display: none !important; }
+  .fc-more-link { color: #6366f1 !important; font-size: 0.73rem; font-weight: 600; }
+  /* List view */
+  .fc-list-day-cushion { background: #f1f5f9 !important; }
+  .fc-list-day-text, .fc-list-day-side-text {
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    text-decoration: none !important;
+  }
+  .fc-list-event:hover td { background: #f8fafc !important; }
+  .fc-list-event-title a { color: #1e293b !important; text-decoration: none !important; }
+  .fc-list-empty-cushion { color: #64748b; }
+  /* Week view times */
+  .fc-timegrid-slot-label-cushion { color: #64748b !important; font-size: 0.72rem !important; }
+  /* Dividers */
+  .fc-theme-standard td, .fc-theme-standard th { border-color: #e2e8f0 !important; }
+  .fc-scrollgrid { border-color: #e2e8f0 !important; }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header row -->
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+  <div class="d-flex flex-wrap gap-2">
+    <span class="cal-legend-pill" style="background:#fef3c7;color:#92400e;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>
+      Scheduled
+    </span>
+    <span class="cal-legend-pill" style="background:#dcfce7;color:#166534;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;"></span>
+      Sent
+    </span>
+    <span class="cal-legend-pill" style="background:#fee2e2;color:#991b1b;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block;"></span>
+      Failed
+    </span>
+    <span class="cal-legend-pill" style="background:#ede9fe;color:#4c1d95;">
+      <span style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;display:inline-block;"></span>
+      Draft
+    </span>
+  </div>
+  <a href="{{ url_for('main.add_campaign') }}"
+     class="btn-pg btn-pg-primary">
+    <i class="bi bi-plus-lg"></i> New Campaign
+  </a>
+</div>
+
+<!-- Calendar card -->
+<div class="card">
+  <div class="card-body p-0">
+    <div class="cal-card">
+      <div id="calendar"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    expandRows: true,
+    firstDay: 1,
+    headerToolbar: {
+      left:   'prev,next today',
+      center: 'title',
+      right:  'dayGridMonth,timeGridWeek,listMonth'
+    },
+    buttonText: {
+      today: 'Today',
+      month: 'Month',
+      week:  'Week',
+      list:  'List'
+    },
+    events: '/api/campaigns/calendar-events',
+    dayMaxEvents: 3,
+    moreLinkClick: 'popover',
+    nowIndicator: true,
+    eventClick: function(info) {
+      info.jsEvent.preventDefault();
+      if (info.event.url) window.location.href = info.event.url;
+    },
+    eventDidMount: function(info) {
+      info.el.setAttribute('title', info.event.extendedProps.description || info.event.title);
+    },
+    noEventsContent: 'No campaigns scheduled yet. Click "+ New Campaign" to get started.',
+    views: {
+      listMonth: {
+        noEventsContent: 'No campaigns this month.'
+      }
+    }
+  });
+  calendar.render();
+});
+</script>
+{% endblock %}

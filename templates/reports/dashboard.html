@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+{% block title %}Reports & Analytics{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+{% block page_subtitle %}Platform-wide phishing simulation metrics and insights{% endblock %}
+
+{% block extra_css %}
+<style>
+.stat-card {
+  background: var(--card-bg, #111827);
+  border: 0.5px solid var(--border-color, rgba(255,255,255,0.07));
+  border-radius: 10px;
+  padding: 16px 14px;
+}
+.stat-icon { font-size: 15px; color: var(--text-muted, #8899AA); margin-bottom: 4px; }
+.stat-value { font-size: 24px; font-weight: 600; line-height: 1.1; }
+.stat-label { font-size: 11px; color: var(--text-muted, #8899AA); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+.stat-sub   { font-size: 11px; color: var(--text-muted, #8899AA); margin-top: 3px; }
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #E8F0FE);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 0.5px solid var(--border-color, rgba(255,255,255,0.07));
+}
+
+.risk-bar-wrap { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.risk-label    { font-size:12px; color:var(--text-primary,#E8F0FE); width:120px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.risk-bar-bg   { flex:1; height:6px; background:var(--badge-bg,rgba(136,153,170,0.15)); border-radius:3px; overflow:hidden; }
+.risk-bar      { height:6px; border-radius:3px; transition:width 0.6s ease; }
+.risk-pct      { font-size:11px; color:var(--text-muted,#8899AA); width:36px; text-align:right; flex-shrink:0; }
+
+.simple-table { width:100%; border-collapse:collapse; font-size:12px; }
+.simple-table th { text-align:left; font-size:11px; font-weight:500; color:var(--text-muted,#8899AA); padding:8px 12px; border-bottom:0.5px solid var(--border-color,rgba(255,255,255,0.07)); }
+.simple-table td { padding:8px 12px; border-bottom:0.5px solid var(--border-color,rgba(255,255,255,0.05)); color:var(--text-primary,#E8F0FE); }
+.simple-table tr:last-child td { border-bottom:none; }
+.simple-table tr:hover td { background:var(--card-hover-bg,rgba(255,255,255,0.02)); }
+
+.status-badge { font-size:10px; padding:2px 7px; border-radius:4px; font-weight:500; white-space:nowrap; }
+.status-sent      { background:rgba(55,138,221,0.12);  color:#378ADD; }
+.status-scheduled { background:rgba(186,117,23,0.12);  color:#BA7517; }
+.status-draft     { background:rgba(136,153,170,0.1);  color:#8899AA; }
+.status-sending   { background:rgba(29,158,117,0.12);  color:#1D9E75; }
+
+.val-safe   { color:#1D9E75; }
+.val-warn   { color:#BA7517; }
+.val-danger { color:#E24B4A; }
+
+.btn-simple {
+  font-size:11px; padding:3px 10px;
+  border:0.5px solid var(--border-color,rgba(255,255,255,0.12));
+  border-radius:6px; background:transparent;
+  color:var(--text-muted,#8899AA); cursor:pointer;
+  text-decoration:none; white-space:nowrap; transition:background 0.15s;
+}
+.btn-simple:hover { background:var(--card-hover-bg,rgba(255,255,255,0.05)); color:var(--text-primary,#E8F0FE); }
+
+.empty-state { text-align:center; padding:40px 20px; }
+.empty-state i { font-size:32px; opacity:0.2; display:block; margin-bottom:8px; }
+.empty-state p { font-size:13px; color:var(--text-muted,#8899AA); margin:0; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Top KPI Cards ── -->
+<div class="row g-3 mb-4">
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-envelope-paper stat-icon"></i>
+      <div class="stat-value" style="color:#378ADD;">{{ total_campaigns }}</div>
+      <div class="stat-label">Total Campaigns</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-send stat-icon"></i>
+      <div class="stat-value" style="color:#4CC9F0;">{{ total_emails_sent }}</div>
+      <div class="stat-label">Emails Sent</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-eye stat-icon"></i>
+      <div class="stat-value" style="color:#BA7517;">{{ overall_open_rate }}%</div>
+      <div class="stat-label">Avg Open Rate</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-cursor stat-icon"></i>
+      <div class="stat-value" style="color:#E24B4A;">{{ overall_click_rate }}%</div>
+      <div class="stat-label">Avg Click Rate</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-person-fill-exclamation stat-icon"></i>
+      <div class="stat-value" style="color:#7F77DD;">{{ overall_submit_rate }}%</div>
+      <div class="stat-label">Credential Submit</div>
+    </div>
+  </div>
+  <div class="col-md-2 col-sm-4 col-6">
+    <div class="stat-card">
+      <i class="bi bi-shield-check stat-icon"></i>
+      <div class="stat-value" style="color:#1D9E75;">{{ safe_rate }}%</div>
+      <div class="stat-label">Stayed Safe</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Funnel Chart + Dept Risk ── -->
+<div class="row g-3 mb-3">
+  <div class="col-lg-8">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title">Campaign performance — sent → opened → clicked → submitted</div>
+      </div>
+      <div class="card-body">
+        <div style="height:260px;">
+          <canvas id="funnelChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title">Click rate by department</div>
+      </div>
+      <div class="card-body">
+        {% if dept_risk %}
+          {% for d in dept_risk %}
+          <div class="risk-bar-wrap">
+            <span class="risk-label" title="{{ d.dept }}">{{ d.dept }}</span>
+            <div class="risk-bar-bg">
+              <div class="risk-bar" style="width:{{ d.click_rate }}%;
+                background:{% if d.click_rate > 40 %}#E24B4A{% elif d.click_rate > 20 %}#BA7517{% else %}#1D9E75{% endif %};"></div>
+            </div>
+            <span class="risk-pct">{{ d.click_rate }}%</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <i class="bi bi-bar-chart"></i>
+            <p>No campaign data yet.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Dept Distribution + High Risk Employees ── -->
+<div class="row g-3 mb-3">
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title">Employee distribution by department</div>
+      </div>
+      <div class="card-body">
+        <div style="height:220px;"><canvas id="deptChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title">Top 10 high-risk employees</div>
+        <a href="{{ url_for('main.employees') }}" class="btn-simple">All employees</a>
+      </div>
+      <div class="card-body" style="padding:0;">
+        {% if high_risk_employees %}
+        <table class="simple-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Department</th>
+              <th>Risk Score</th>
+              <th>Last Simulation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for emp in high_risk_employees %}
+            <tr>
+              <td><a href="{{ url_for('main.employee_detail', emp_id=emp.id) }}" style="color:inherit;text-decoration:none;">{{ emp.employee_name }}</a></td>
+              <td style="color:var(--text-muted,#8899AA);">{{ emp.department or '—' }}</td>
+              <td>
+                <span class="{% if emp.risk_score >= 75 %}val-danger{% elif emp.risk_score >= 40 %}val-warn{% else %}val-safe{% endif %}" style="font-weight:600;">
+                  {{ emp.risk_score | int }}
+                </span>
+              </td>
+              <td style="color:var(--text-muted,#8899AA);">
+                {% if emp.last_simulation %}{{ emp.last_simulation | to_ist('%d %b %Y') }}{% else %}—{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-person-check"></i>
+          <p>No risk data yet. Launch a campaign first.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── All Campaigns Table ── -->
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All campaigns</div>
+        <a href="{{ url_for('main.add_campaign') }}" class="btn-simple">+ New campaign</a>
+      </div>
+      {% if all_campaigns %}
+      <div class="card-body" style="padding:0;">
+        <table class="simple-table">
+          <thead>
+            <tr>
+              <th>Campaign</th>
+              <th>Status</th>
+              <th>Department</th>
+              <th>Targets</th>
+              <th>Sent</th>
+              <th>Opened</th>
+              <th>Clicked</th>
+              <th>Submitted</th>
+              <th>Scheduled / Sent At</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in all_campaigns %}
+            <tr>
+              <td style="font-weight:500;">{{ c.name | truncate(28) }}</td>
+              <td>
+                <span class="status-badge
+                  {% if c.status=='sent' %}status-sent
+                  {% elif c.status=='sending' %}status-sending
+                  {% elif c.status=='scheduled' %}status-scheduled
+                  {% else %}status-draft{% endif %}">
+                  {{ c.status | title }}
+                </span>
+              </td>
+              <td style="color:var(--text-muted,#8899AA);">{{ c.target_department or 'ALL' }}</td>
+              <td>{{ c.total_targets }}</td>
+              <td>{{ c.targets | selectattr('email_sent_at') | list | length }}</td>
+              <td class="{% if c.open_rate > 50 %}val-warn{% endif %}">{{ c.open_rate }}%</td>
+              <td class="{% if c.click_rate > 20 %}val-danger{% endif %}">{{ c.click_rate }}%</td>
+              <td class="{% if c.submit_rate > 10 %}val-danger{% endif %}">{{ c.submit_rate }}%</td>
+              <td style="color:var(--text-muted,#8899AA); font-size:11px;">
+                {% if c.sent_at %}{{ c.sent_at | to_ist }}
+                {% elif c.scheduled_at %}{{ c.scheduled_at | to_ist }}
+                {% else %}—{% endif %}
+              </td>
+              <td><a href="{{ url_for('main.campaign_detail', campaign_id=c.id) }}" class="btn-simple">View</a></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="card-body">
+        <div class="empty-state">
+          <i class="bi bi-envelope-paper"></i>
+          <p>No campaigns yet.</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const isDark   = !document.documentElement.classList.contains('light');
+  const muted    = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const tick     = isDark ? '#8899AA' : '#666';
+  const baseScales = {
+    x: { grid:{ color:muted }, ticks:{ color:tick, font:{ size:10 } } },
+    y: { grid:{ color:muted }, ticks:{ color:tick, font:{ size:10 } }, beginAtZero:true }
+  };
+  const baseTooltip = {
+    backgroundColor: isDark ? '#1A2840' : '#fff',
+    titleColor: tick,
+    bodyColor: isDark ? '#E8F0FE' : '#333',
+    borderColor: 'rgba(55,138,221,0.2)',
+    borderWidth: 1
+  };
+
+  /* ── Funnel / Campaign bar chart ── */
+  (function () {
+    const canvas = document.getElementById('funnelChart');
+    if (!canvas) return;
+    const data = {{ funnel_data | safe }};
+    if (!data.length) {
+      canvas.parentElement.innerHTML =
+        '<div class="empty-state"><i class="bi bi-bar-chart"></i><p>Run a campaign to see performance data.</p></div>';
+      return;
+    }
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.name),
+        datasets: [
+          { label:'Sent',      data: data.map(d => d.sent),      backgroundColor:'rgba(55,138,221,0.75)',  borderRadius:3 },
+          { label:'Opened',    data: data.map(d => d.opened),    backgroundColor:'rgba(186,117,23,0.75)',  borderRadius:3 },
+          { label:'Clicked',   data: data.map(d => d.clicked),   backgroundColor:'rgba(226,75,74,0.75)',   borderRadius:3 },
+          { label:'Submitted', data: data.map(d => d.submitted), backgroundColor:'rgba(127,119,221,0.75)', borderRadius:3 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display:true, labels:{ color:tick, font:{ size:10 }, boxWidth:10, boxHeight:10 } },
+          tooltip: baseTooltip
+        },
+        scales: baseScales
+      }
+    });
+  })();
+
+  /* ── Dept doughnut ── */
+  (function () {
+    const canvas = document.getElementById('deptChart');
+    if (!canvas) return;
+    const raw = {{ dept_data | safe }};
+    if (!raw.length) {
+      canvas.parentElement.innerHTML =
+        '<div class="empty-state"><i class="bi bi-building"></i><p>No department data.</p></div>';
+      return;
+    }
+    const palette = ['#378ADD','#1D9E75','#BA7517','#E24B4A','#7F77DD','#4CC9F0','#00B4D8','#F72585'];
+    new Chart(canvas, {
+      type: 'doughnut',
+      data: {
+        labels: raw.map(d => d.name),
+        datasets: [{
+          data: raw.map(d => d.count),
+          backgroundColor: raw.map((_, i) => palette[i % palette.length]),
+          borderWidth: 0,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '65%',
+        plugins: {
+          legend: { display:true, position:'right', labels:{ color:tick, font:{ size:10 }, boxWidth:10, boxHeight:10 } },
+          tooltip: baseTooltip
+        }
+      }
+    });
+  })();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}500 Server Error{% endblock %}
+{% block page_title %}Server Error{% endblock %}
+{% block content %}
+<div class="empty-state" style="padding:80px 24px;">
+  <div style="font-size:64px;margin-bottom:16px;opacity:0.2;">500</div>
+  <h5>Something went wrong</h5>
+  <p>An internal error occurred. Please try again or contact your system administrator.</p>
+  <a href="{{ url_for('main.dashboard') }}" class="btn-pg btn-pg-primary mt-3">
+    <i class="bi bi-grid"></i> Back to Dashboard
+  </a>
+</div>
+{% endblock %}

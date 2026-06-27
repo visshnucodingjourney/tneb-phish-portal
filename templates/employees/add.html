@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Add Employee{% endblock %}
+{% block page_title %}Employees{% endblock %}
+{% block page_subtitle %}Add a single employee record{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Add Employee</div>
+  </div>
+
+  <div class="card-body">
+
+    <form method="POST" autocomplete="off">
+
+      <div class="mb-3">
+        <label>Employee ID</label>
+        <input type="text" class="form-control" name="employee_id" required autofocus tabindex="1">
+      </div>
+
+      <div class="mb-3">
+        <label>Full Name</label>
+        <input type="text" class="form-control" name="employee_name" required tabindex="2">
+      </div>
+
+      <div class="mb-3">
+        <label>Email</label>
+        <input type="email" class="form-control" name="email" required tabindex="3">
+      </div>
+
+      <div class="mb-3">
+        <label>Department</label>
+        <select class="form-control" name="department" tabindex="4">
+          <option value="">— Select Department —</option>
+          {% for dept in departments %}
+          <option value="{{ dept.name }}">{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label>Designation</label>
+        <input type="text" class="form-control" name="designation" placeholder="e.g. Senior Software Engineer" tabindex="5">
+      </div>
+
+      <div class="mb-3">
+        <label>Office Location</label>
+        <input type="text" class="form-control" name="office_location" tabindex="6">
+      </div>
+
+      <button type="submit" class="btn-pg btn-pg-primary" tabindex="7">
+        <i class="bi bi-person-plus-fill"></i> Add Employee
+      </button>
+      <a href="{{ url_for('main.employees') }}" class="btn-pg" style="background:var(--bg-hover);color:var(--text-secondary);">
+        Cancel
+      </a>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

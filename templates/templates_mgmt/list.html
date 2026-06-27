@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Templates{% endblock %}
+{% block page_title %}Templates{% endblock %}
+
+{% block content %}
+
+<a href="{{ url_for('main.add_template') }}"
+   class="btn-pg btn-pg-primary mb-3">
+   Create Template
+</a>
+
+<div class="card">
+<div class="card-body">
+
+<table class="table">
+
+<thead>
+<tr>
+<th>Name</th>
+<th>Category</th>
+<th>Difficulty</th>
+<th>Subject</th>
+<th>Attachment</th>
+<th style="width:140px;">Actions</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for template in templates %}
+
+<tr>
+<td>{{ template.name }}</td>
+<td>{{ template.category }}</td>
+<td>{{ template.difficulty }}</td>
+<td>{{ template.subject }}</td>
+<td>
+  {% if template.attachment_filename %}
+    <span title="{{ template.attachment_original_name }}">
+      <i class="bi bi-paperclip"></i> {{ template.attachment_original_name }}
+    </span>
+  {% else %}
+    <span style="color:var(--text-muted);">—</span>
+  {% endif %}
+</td>
+<td>
+  <a href="{{ url_for('main.edit_template', template_id=template.id) }}"
+     class="btn-pg" style="padding:4px 10px;font-size:12px;background:var(--bg-hover);color:var(--text-secondary);"
+     title="Edit">
+    <i class="bi bi-pencil-fill"></i>
+  </a>
+  <form method="POST" action="{{ url_for('main.delete_template', template_id=template.id) }}"
+        style="display:inline;"
+        onsubmit="return confirm('Delete template \'{{ template.name }}\'?');">
+    <button type="submit" class="btn-pg" style="padding:4px 10px;font-size:12px;background:rgba(248,81,73,0.1);color:#f85149;"
+            title="Delete">
+      <i class="bi bi-trash-fill"></i>
+    </button>
+  </form>
+</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+</div>
+
+{% endblock %}

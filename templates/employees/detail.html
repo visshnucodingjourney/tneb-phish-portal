@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}{{ employee.employee_name }}{% endblock %}
+{% block page_title %}Employee Profile{% endblock %}
+{% block page_subtitle %}{{ employee.employee_id }} · {{ employee.department or 'No Department' }}{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-body text-center" style="padding:32px 20px;">
+        <div style="width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#1B4F72,#00B4D8);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:26px;color:#fff;margin-bottom:16px;">
+          {{ employee.employee_name[:2].upper() }}
+        </div>
+        <div style="font-size:17px;font-weight:600;margin-bottom:4px;">{{ employee.employee_name }}</div>
+        <div style="font-size:13px;color:var(--text-muted);">{{ employee.designation or 'No designation' }}</div>
+        {% if employee.department %}
+          <div class="mt-2"><span class="badge-dept">{{ employee.department }}</span></div>
+        {% endif %}
+        <div class="mt-3 d-flex gap-2 justify-content-center">
+          <a href="{{ url_for('main.edit_employee', emp_id=employee.id) }}" class="btn-pg btn-pg-secondary">
+            <i class="bi bi-pencil"></i> Edit
+          </a>
+          <form method="POST" action="{{ url_for('main.delete_employee', emp_id=employee.id) }}" class="d-inline">
+            <button type="submit" class="btn-pg btn-pg-danger"
+                    data-confirm="Remove {{ employee.employee_name }} from the directory?">
+              <i class="bi bi-trash"></i> Remove
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">Risk Profile</div></div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between mb-2">
+          <span style="font-size:13px;color:var(--text-muted);">Risk Score</span>
+          <span class="risk-badge risk-low">{{ '%.1f' % employee.risk_score }} / 10</span>
+        </div>
+        <div class="pg-progress mb-3">
+          <div class="pg-progress-bar" style="width:{{ employee.risk_score * 10 }}%"></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);">
+          <i class="bi bi-info-circle me-1"></i>
+          Risk score is calculated from simulation results. Available in Phase 2.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-header"><div class="card-title">Contact Information</div></div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Employee ID</div>
+            <div class="mono" style="font-size:14px;">{{ employee.employee_id }}</div>
+          </div>
+          <div class="col-sm-6">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Full Name</div>
+            <div style="font-size:14px;font-weight:500;">{{ employee.employee_name }}</div>
+          </div>
+          <div class="col-sm-6">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Email</div>
+            <div style="font-size:14px;">
+              <a href="mailto:{{ employee.email }}">{{ employee.email }}</a>
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Department</div>
+            <div>{% if employee.department %}<span class="badge-dept">{{ employee.department }}</span>{% else %}—{% endif %}</div>
+          </div>
+          <div class="col-sm-6">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Designation</div>
+            <div style="font-size:14px;">{{ employee.designation or '—' }}</div>
+          </div>
+          <div class="col-sm-6">
+            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Office Location</div>
+            <div style="font-size:14px;">{{ employee.office_location or '—' }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-header"><div class="card-title">Record Metadata</div></div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-4">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Added On</div>
+            <div class="mono" style="font-size:13px;">{{ employee.created_at.strftime('%d %b %Y %H:%M') if employee.created_at else '—' }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Last Updated</div>
+            <div class="mono" style="font-size:13px;">{{ employee.updated_at.strftime('%d %b %Y %H:%M') if employee.updated_at else '—' }}</div>
+          </div>
+          <div class="col-sm-4">
+            <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Status</div>
+            <span class="badge-status-active">Active</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="opacity:0.6;">
+      <div class="card-header">
+        <div class="card-title">Simulation History</div>
+        <span class="badge-dept">Phase 2</span>
+      </div>
+      <div class="card-body">
+        <div class="empty-state" style="padding:24px;">
+          <i class="bi bi-envelope-open d-block mb-2" style="font-size:28px;opacity:0.3;"></i>
+          <div style="font-size:13px;">Campaign simulation data will appear here once Phase 2 is deployed.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <a href="{{ url_for('main.employees') }}" class="btn-pg btn-pg-secondary">
+    <i class="bi bi-arrow-left"></i> Back to Directory
+  </a>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}New Department{% endblock %}
+{% block page_title %}New Department{% endblock %}
+{% block page_subtitle %}Add an organizational unit{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-building-add me-2 text-accent"></i>Create Department</div>
+      </div>
+      <div class="card-body">
+        <form method="POST">
+          <div class="row g-3">
+            <div class="col-sm-8">
+              <label class="form-label">Department Name <span style="color:var(--danger);">*</span></label>
+              <input type="text" name="name" class="form-control" placeholder="e.g. Information Technology" required>
+            </div>
+            <div class="col-sm-4">
+              <label class="form-label">Short Code</label>
+              <input type="text" name="code" class="form-control" placeholder="e.g. IT" maxlength="10">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Department Head</label>
+              <input type="text" name="head_name" class="form-control" placeholder="Full name of department head">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="3" placeholder="Brief description of this department…"></textarea>
+            </div>
+          </div>
+          <hr class="divider my-4">
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{{ url_for('main.departments') }}" class="btn-pg btn-pg-secondary">Cancel</a>
+            <button type="submit" class="btn-pg btn-pg-primary">
+              <i class="bi bi-building-add"></i> Create Department
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

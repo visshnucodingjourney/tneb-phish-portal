@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Import Results{% endblock %}
+{% block page_title %}Import Results{% endblock %}
+{% block page_subtitle %}{{ upload.original_filename }} — uploaded {{ upload.uploaded_at.strftime('%d %b %Y %H:%M') if upload.uploaded_at else '' }}{% endblock %}
+
+{% block content %}
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-3">
+    <div class="stat-card" style="--accent-color:#8899AA;--icon-bg:rgba(136,153,170,0.1);">
+      <div class="stat-icon">📄</div>
+      <div class="stat-value" style="color:var(--text-secondary);">{{ upload.total_rows }}</div>
+      <div class="stat-label">Total Rows</div>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="stat-card" style="--accent-color:#2EC4B6;--icon-bg:rgba(46,196,182,0.1);">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value" style="color:#2EC4B6;">{{ success_count }}</div>
+      <div class="stat-label">Successfully Added</div>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="stat-card" style="--accent-color:#F4A261;--icon-bg:rgba(244,162,97,0.1);">
+      <div class="stat-icon">⏭️</div>
+      <div class="stat-value" style="color:#F4A261;">{{ duplicate_count }}</div>
+      <div class="stat-label">Duplicates Skipped</div>
+    </div>
+  </div>
+  <div class="col-sm-3">
+    <div class="stat-card" style="--accent-color:#E63946;--icon-bg:rgba(230,57,70,0.1);">
+      <div class="stat-icon">❌</div>
+      <div class="stat-value" style="color:#E63946;">{{ failed_count }}</div>
+      <div class="stat-label">Failed Rows</div>
+    </div>
+  </div>
+</div>
+
+<!-- Progress visualization -->
+<div class="card mb-4">
+  <div class="card-body" style="padding:16px 20px;">
+    <div class="d-flex align-items-center gap-3 mb-2">
+      <span style="font-size:12.5px;color:var(--text-muted);">Import success rate</span>
+      <span style="font-size:13px;font-weight:600;color:{% if success_count == upload.total_rows %}var(--success){% elif success_count > 0 %}var(--warning){% else %}var(--danger){% endif %};">
+        {% if upload.total_rows > 0 %}{{ ((success_count / upload.total_rows) * 100) | round(1) }}%{% else %}0%{% endif %}
+      </span>
+    </div>
+    <div class="pg-progress" style="height:8px;">
+      <div class="pg-progress-bar"
+           style="width:{% if upload.total_rows > 0 %}{{ ((success_count / upload.total_rows) * 100) | int }}{% else %}0{% endif %}%;
+                  background:{% if success_count == upload.total_rows %}var(--success){% elif success_count > 0 %}var(--warning){% else %}var(--danger){% endif %};">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error Details -->
+{% if errors %}
+<div class="card mb-4">
+  <div class="card-header">
+    <div class="card-title">
+      <i class="bi bi-exclamation-triangle-fill me-2" style="color:var(--warning);"></i>
+      Row Errors ({{ errors | length }} shown{% if upload.failed_rows + upload.duplicate_rows > errors | length %} of {{ upload.failed_rows + upload.duplicate_rows }}{% endif %})
+    </div>
+  </div>
+  <div class="card-body" style="padding:0;">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr><th>Row</th><th>Error</th></tr>
+        </thead>
+        <tbody>
+          {% for err in errors %}
+          <tr>
+            <td><span class="mono" style="color:var(--text-muted);">{{ err.row }}</span></td>
+            <td style="color:var(--danger);font-size:13px;">{{ err.error }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="d-flex gap-2">
+  <a href="{{ url_for('main.employees') }}" class="btn-pg btn-pg-primary">
+    <i class="bi bi-people-fill"></i> View Employee Directory
+  </a>
+  <a href="{{ url_for('main.upload_employees') }}" class="btn-pg btn-pg-secondary">
+    <i class="bi bi-cloud-upload"></i> Import Another File
+  </a>
+  <a href="{{ url_for('main.dashboard') }}" class="btn-pg btn-pg-secondary">
+    <i class="bi bi-grid"></i> Dashboard
+  </a>
+</div>
+
+{% endblock %}

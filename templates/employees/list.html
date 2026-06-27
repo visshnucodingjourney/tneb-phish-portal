@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Employees{% endblock %}
+{% block page_title %}Employees{% endblock %}
+{% block page_subtitle %}Employee Directory{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <form method="GET" class="d-flex gap-2 flex-grow-1" style="max-width:700px;">
+    <input type="text" name="search" class="form-control" placeholder="Search name, ID, or email…"
+           value="{{ search }}">
+
+    <select name="department" class="form-control" style="max-width:200px;">
+      <option value="">All Departments</option>
+      {% for d in departments %}
+      <option value="{{ d }}" {% if d == dept_filter %}selected{% endif %}>{{ d }}</option>
+      {% endfor %}
+    </select>
+
+    <select name="designation" class="form-control" style="max-width:200px;">
+      <option value="">All Designations</option>
+      {% for des in designations %}
+      <option value="{{ des }}" {% if des == desig_filter %}selected{% endif %}>{{ des }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit" class="btn-pg" style="background:var(--bg-hover);color:var(--text-secondary);">
+      <i class="bi bi-search"></i>
+    </button>
+    {% if search or dept_filter or desig_filter %}
+    <a href="{{ url_for('main.employees') }}" class="btn-pg" style="background:var(--bg-hover);color:var(--text-secondary);">
+      <i class="bi bi-x-lg"></i>
+    </a>
+    {% endif %}
+  </form>
+
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('main.upload_employees') }}" class="btn-pg" style="background:var(--bg-hover);color:var(--text-secondary);">
+      <i class="bi bi-cloud-upload-fill"></i> CSV Import
+    </a>
+    <a href="{{ url_for('main.add_employee') }}" class="btn-pg btn-pg-primary">
+      <i class="bi bi-person-plus-fill"></i> Add Employee
+    </a>
+  </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="card-title">Employee List {% if pagination %}({{ pagination.total }}){% endif %}</div>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Employee ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th style="width:140px;">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for emp in employees %}
+                <tr>
+                    <td>{{ emp.employee_id }}</td>
+                    <td>{{ emp.employee_name }}</td>
+                    <td>{{ emp.email }}</td>
+                    <td>{{ emp.department }}</td>
+                    <td>{{ emp.designation }}</td>
+                    <td>
+                      <a href="{{ url_for('main.edit_employee', emp_id=emp.id) }}"
+                         class="btn-pg" style="padding:4px 10px;font-size:12px;background:var(--bg-hover);color:var(--text-secondary);"
+                         title="Edit">
+                        <i class="bi bi-pencil-fill"></i>
+                      </a>
+                      <form method="POST" action="{{ url_for('main.delete_employee', emp_id=emp.id) }}"
+                            style="display:inline;"
+                            onsubmit="return confirm('Remove {{ emp.employee_name }} from the directory?');">
+                        <button type="submit" class="btn-pg" style="padding:4px 10px;font-size:12px;background:rgba(248,81,73,0.1);color:#f85149;"
+                                title="Delete">
+                          <i class="bi bi-trash-fill"></i>
+                        </button>
+                      </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                  <td colspan="6" class="text-center" style="color:var(--text-muted);padding:2rem;">
+                    No employees found.
+                  </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+
+        {% if pagination and pagination.pages > 1 %}
+        <nav class="d-flex justify-content-center gap-2 mt-3">
+          {% if pagination.has_prev %}
+          <a href="{{ url_for('main.employees', page=pagination.prev_num, search=search, department=dept_filter, designation=desig_filter) }}"
+             class="btn-pg" style="background:var(--bg-hover);color:var(--text-secondary);">Prev</a>
+          {% endif %}
+          <span style="color:var(--text-muted);align-self:center;font-size:13px;">
+            Page {{ pagination.page }} of {{ pagination.pages }}
+          </span>
+          {% if pagination.has_next %}
+          <a href="{{ url_for('main.employees', page=pagination.next_num, search=search, department=dept_filter, designation=desig_filter) }}"
+             class="btn-pg" style="background:var(--bg-hover);color:var(--text-secondary);">Next</a>
+          {% endif %}
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

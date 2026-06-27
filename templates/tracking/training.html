@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Awareness Training</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/phishguard.css') }}" rel="stylesheet">
+  <style>
+    .training-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+      background: var(--bg-primary, #0d1117);
+    }
+    .training-card {
+      background: var(--bg-card, #161b22);
+      border: 1px solid var(--border, #30363d);
+      border-radius: 16px;
+      padding: 2.5rem;
+      max-width: 600px;
+      width: 100%;
+    }
+    .warning-icon {
+      font-size: 64px;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .tip-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 14px;
+      color: var(--text-secondary, #8b949e);
+    }
+    .tip-item:last-child { border-bottom: none; }
+    .tip-icon { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+<div class="training-wrap">
+  <div class="training-card">
+
+    <div class="warning-icon">⚠️</div>
+
+    <h2 class="text-center mb-1" style="color:#f0a500;font-weight:700;">
+      This Was a Phishing Test
+    </h2>
+    <p class="text-center mb-4" style="color:var(--text-muted,#6e7681);font-size:14px;">
+      {% if employee %}Hi <strong style="color:var(--text-secondary);">{{ employee.employee_name }}</strong>, {% endif %}
+      you clicked a simulated phishing link and entered your credentials.<br>
+      <strong style="color:#f85149;">In a real attack, your account would now be compromised.</strong>
+    </p>
+
+    <div class="p-3 mb-4 rounded" style="background:rgba(248,81,73,0.08);border:1px solid rgba(248,81,73,0.2);">
+      <div style="font-size:13px;font-weight:600;color:#f85149;margin-bottom:8px;">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>What happened
+      </div>
+      <div style="font-size:13px;color:var(--text-secondary,#8b949e);line-height:1.7;">
+        You received a fake email, clicked a suspicious link, and entered your login credentials on a page that looked legitimate but was not. This is exactly how real phishing attacks steal accounts.
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:600;color:var(--accent,#00B4D8);margin-bottom:12px;">
+      <i class="bi bi-shield-check me-2"></i>How to spot phishing emails — remember these:
+    </div>
+
+    <div class="tip-item">
+      <span class="tip-icon">🔍</span>
+      <span><strong style="color:var(--text-primary,#e6edf3);">Check the sender's email address carefully.</strong> Attackers use domains that look similar (e.g. company-portal.net instead of company.com).</span>
+    </div>
+    <div class="tip-item">
+      <span class="tip-icon">🔗</span>
+      <span><strong style="color:var(--text-primary,#e6edf3);">Hover over links before clicking.</strong> The real URL appears at the bottom of your browser — check if it matches the company's actual domain.</span>
+    </div>
+    <div class="tip-item">
+      <span class="tip-icon">⚡</span>
+      <span><strong style="color:var(--text-primary,#e6edf3);">Be suspicious of urgency.</strong> "Your account will be locked!", "Act now!" — real IT teams don't pressure you like this.</span>
+    </div>
+    <div class="tip-item">
+      <span class="tip-icon">🔒</span>
+      <span><strong style="color:var(--text-primary,#e6edf3);">Never enter credentials on a page you reached via email.</strong> Always type the URL directly into your browser.</span>
+    </div>
+    <div class="tip-item">
+      <span class="tip-icon">📞</span>
+      <span><strong style="color:var(--text-primary,#e6edf3);">When in doubt, call IT directly.</strong> Never reply to the suspicious email — contact your IT/security team through official channels.</span>
+    </div>
+
+    <div class="mt-4 p-3 rounded text-center" style="background:rgba(0,180,216,0.06);border:1px solid rgba(0,180,216,0.12);">
+      <div style="font-size:12px;color:var(--text-muted,#6e7681);">
+        <i class="bi bi-info-circle me-1"></i>
+        This was a <strong style="color:var(--accent,#00B4D8);">simulated phishing exercise</strong> run by your IT/Security team.<br>
+        No real data was collected. Your participation helps improve company security.
+      </div>
+    </div>
+
+    <div class="text-center mt-4" style="font-size:11px;color:var(--text-muted,#6e7681);">
+      PhishGuard Security Awareness Training · Your IT Security Team
+    </div>
+
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

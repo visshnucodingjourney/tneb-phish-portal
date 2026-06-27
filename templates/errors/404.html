@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}404 Not Found{% endblock %}
+{% block page_title %}Page Not Found{% endblock %}
+{% block content %}
+<div class="empty-state" style="padding:80px 24px;">
+  <div style="font-size:64px;margin-bottom:16px;opacity:0.2;">404</div>
+  <h5>This page doesn't exist</h5>
+  <p>The URL you visited is not part of PhishGuard.</p>
+  <a href="{{ url_for('main.dashboard') }}" class="btn-pg btn-pg-primary mt-3">
+    <i class="bi bi-grid"></i> Back to Dashboard
+  </a>
+</div>
+{% endblock %}

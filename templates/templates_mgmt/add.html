@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Create Email Template{% endblock %}
+{% block page_title %}Email Templates{% endblock %}
+{% block page_subtitle %}Create a new phishing simulation email template{% endblock %}
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="card-title">Create Template</div>
+  </div>
+
+  <div class="card-body">
+
+    <form method="POST" enctype="multipart/form-data" autocomplete="off">
+
+      <div class="mb-3">
+        <label>Template Name</label>
+        <input type="text"
+               class="form-control"
+               name="name"
+               required>
+      </div>
+
+      <div class="mb-3">
+        <label>Subject Line</label>
+        <input type="text"
+               class="form-control"
+               name="subject"
+               required>
+      </div>
+
+      <div class="mb-3">
+        <label>Email Body (HTML)</label>
+        <textarea class="form-control"
+                  name="body"
+                  rows="10"
+                  placeholder="Use {{CLICK_LINK}} where the phishing link should be inserted."
+                  required></textarea>
+        <small style="color:var(--text-muted);">
+          Insert <code>{{CLICK_LINK}}</code> anywhere in the HTML to control where the tracked link appears.
+        </small>
+      </div>
+
+      <div class="mb-3">
+        <label>Category</label>
+        <input type="text"
+               class="form-control"
+               name="category"
+               placeholder="e.g. IT, HR, Finance">
+      </div>
+
+      <div class="mb-3">
+        <label>Difficulty (1–5)</label>
+        <input type="number"
+               class="form-control"
+               name="difficulty"
+               min="1" max="5" value="1">
+      </div>
+
+      <div class="mb-3">
+        <label>Attachment (optional — PDF, PNG, JPG, GIF)</label>
+        <input type="file"
+               class="form-control"
+               name="attachment"
+               accept=".pdf,.png,.jpg,.jpeg,.gif">
+        <small style="color:var(--text-muted);">Attached to every email sent with this template. Max 16MB.</small>
+      </div>
+
+      <button type="submit"
+              class="btn-pg btn-pg-primary">
+        Create Template
+      </button>
+
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}
