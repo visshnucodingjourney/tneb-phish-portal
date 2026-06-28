@@ -133,6 +133,88 @@ def logout():
     return redirect(url_for('auth.login'))
 
 
+# ─── Forgot / Reset Password ──────────────────────────────────────────────────
+
+from itsdangerous import URLSafeTimedSerializer, BadSignature, SignatureExpired
+
+RESET_TOKEN_MAX_AGE = 1800  # 30 minutes
+
+
+def _get_reset_serializer():
+    return URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+
+
+def generate_reset_token(admin):
+    s = _get_reset_serializer()
+    return s.dumps(admin.email, salt='password-reset-salt')
+
+
+def verify_reset_token(token, max_age=RESET_TOKEN_MAX_AGE):
+    s = _get_reset_serializer()
+    try:
+        email = s.loads(token, salt='password-reset-salt', max_age=max_age)
+    except (BadSignature, SignatureExpired):
+        return None
+    return Admin.query.filter_by(email=email, is_active=True).first()
+
+
+@auth.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
+
+    if request.method == 'POST':
+        from mail_service import send_password_reset_email
+
+        email = request.form.get('email', '').strip().lower()
+        admin = Admin.query.filter_by(email=email, is_active=True).first()
+
+        if admin:
+            token = generate_reset_token(admin)
+            reset_url = url_for('auth.reset_password', token=token, _external=True)
+            send_password_reset_email(admin, reset_url)
+            log_activity('PASSWORD_RESET_REQUESTED', 'Admin', admin.id,
+                         f'Password reset requested for "{admin.username}"')
+
+        # Always show the same message — don't reveal whether the email exists
+        flash('If that email is registered, a password reset link has been sent.', 'info')
+        return redirect(url_for('auth.login'))
+
+    return render_template('forgot_password.html')
+
+
+@auth.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    if current_user.is_authenticated:
+        return redirect(url_for('main.dashboard'))
+
+    admin = verify_reset_token(token)
+    if not admin:
+        flash('That password reset link is invalid or has expired. Please request a new one.', 'danger')
+        return redirect(url_for('auth.forgot_password'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('new_password', '')
+        confirm_password = request.form.get('confirm_password', '')
+
+        if len(new_password) < 8:
+            flash('Password must be at least 8 characters.', 'danger')
+            return render_template('reset_password.html', token=token)
+
+        if new_password != confirm_password:
+            flash('Passwords do not match.', 'danger')
+            return render_template('reset_password.html', token=token)
+
+        admin.set_password(new_password)
+        db.session.commit()
+        log_activity('PASSWORD_RESET_COMPLETED', 'Admin', admin.id,
+                     f'Password reset completed for "{admin.username}"')
+        flash('Your password has been reset. Please log in.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('reset_password.html', token=token)
+
+
 # ─── Two-Factor Authentication (Google Authenticator) ────────────────────────
 
 @auth.route('/2fa/setup', methods=['GET', 'POST'])

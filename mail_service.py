@@ -139,3 +139,34 @@ def send_campaign_async(app, campaign_id):
 
     thread = threading.Thread(target=_worker, daemon=True)
     thread.start()
+
+
+# ─── Password Reset Email ─────────────────────────────────────────────────────
+
+def send_password_reset_email(admin, reset_url):
+    """
+    Send a password-reset link to an admin. Used by the forgot-password flow.
+    The caller always shows the same generic "if that email exists, a link
+    was sent" message regardless of outcome, so we don't leak which emails
+    are registered.
+    """
+    try:
+        html_body = f"""
+            <p>Hello {admin.full_name or admin.username},</p>
+            <p>We received a request to reset your PhishGuard admin password.
+               Click the link below to set a new password. This link expires in 30 minutes.</p>
+            <p><a href="{reset_url}">Reset your password</a></p>
+            <p>If you didn't request this, you can safely ignore this email.</p>
+        """
+        msg = Message(
+            subject='PhishGuard — Password Reset Request',
+            recipients=[admin.email],
+            html=html_body,
+            sender=current_app.config.get('MAIL_DEFAULT_SENDER'),
+        )
+        mail.send(msg)
+        return True
+    except Exception as exc:
+        traceback.print_exc()
+        current_app.logger.error(f'[PhishGuard] Failed to send reset email to {admin.email}: {exc}')
+        return False

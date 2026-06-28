@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Environment variables / secrets
+.env
+.env.*
+*.env
+
+# Database
+database/
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploads (CSV imports, email template attachments)
+uploads/
+
+# Flask / instance
+instance/
+.flask_session/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
